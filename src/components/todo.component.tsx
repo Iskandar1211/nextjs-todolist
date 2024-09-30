@@ -5,7 +5,6 @@ import {Button} from "@/components/ui/button";
 import {useTimer} from "react-timer-hook";
 import Modal from "@/components/ui/modal/modal";
 import CreateOrUpdateTodoForm from "@/components/forms/create-or-update-todo.form";
-import useOnComplete from "@/hooks/useOnComplete";
 import axios from "axios";
 import {toast} from "react-toastify";
 
@@ -13,23 +12,23 @@ const TodoComponent = (
   {
     todo,
     isCompleted,
-    refetch
+    refetch,
+    onComplete
   }: {
     todo: TodoType,
     isCompleted?: boolean,
     refetch: () => Promise<void>
+    onComplete?: (updateTodo: TodoType) => Promise<void>
   }) => {
   // ---------------------------------------------------------------------------------------
   // Variables
   // ---------------------------------------------------------------------------------------
-  const startTime = new Date(`${todo.dateFrom}T${todo.start}`);
+  // const startTime = new Date(`${todo.dateFrom}T${todo.start}`);
   const endTime = new Date(`${todo.dateFrom}T${todo.end}`);
 
   // ---------------------------------------------------------------------------------------
   // Hooks
   // ---------------------------------------------------------------------------------------
-
-  const {onComplete} = useOnComplete()
 
   const {
     seconds,
@@ -47,7 +46,7 @@ const TodoComponent = (
   // ---------------------------------------------------------------------------------------
 
   const onDeleteTodo = async (todoId: string) => {
-    const resDelete = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/${isCompleted ? `completed-todos/${todoId}` : 'todos/${todoId}'}`)
+    const resDelete = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/${isCompleted ? `completed-todos/${todoId}` : `todos/${todoId}`}`)
     if (resDelete.status === 200) {
       await refetch()
       toast.success("Todo deleted successfully.");
@@ -77,7 +76,7 @@ const TodoComponent = (
           title={`Editing Todo: ${todo.title}`}
           asChildButton={<Button variant="outline">Edit Todo</Button>}
         >
-          <CreateOrUpdateTodoForm todo={todo}/>
+          <CreateOrUpdateTodoForm todo={todo} refetch={refetch}/>
         </Modal>
         <Button onClick={() => {
           if (todo.id) {
@@ -89,7 +88,9 @@ const TodoComponent = (
             ...todo,
             completed: true
           }
-          onComplete(updatedTodo)
+          if (onComplete) {
+            onComplete(updatedTodo)
+          }
         }}>Complete</Button>}
       </CardFooter>
     </Card>

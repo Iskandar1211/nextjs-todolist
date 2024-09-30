@@ -9,10 +9,8 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import {DialogClose} from "@/components/ui/dialog";
-import {useGetTodos} from "@/hooks/useGetTodos";
 
-const CreateOrUpdateTodoForm = ({todo}: { todo?: TodoType }) => {
-  const {getTodos} = useGetTodos()
+const CreateOrUpdateTodoForm = ({todo, refetch}: { todo?: TodoType, refetch: () => Promise<void> }) => {
 
   const form = useForm<TodoType>({
     defaultValues: {
@@ -41,12 +39,12 @@ const CreateOrUpdateTodoForm = ({todo}: { todo?: TodoType }) => {
     if (todo?.id) {
       const updateTodo: TodoType = {...data, id: todo.id, userId: todo.id};
       axios.put(`${process.env.NEXT_PUBLIC_API_URL}/todos/${todo.id}`, updateTodo)
-        .then(async (data) => data.status === 200 && await getTodos()
+        .then(async (data) => data.status === 200 && await refetch()
         )
     } else {
       const newTodo: TodoType = {...data, id: crypto.randomUUID(), userId: crypto.randomUUID()};
       axios.post(`${process.env.NEXT_PUBLIC_API_URL}/todos`, newTodo)
-        .then(async (data) => data.status === 201 && await getTodos()
+        .then(async (data) => data.status === 201 && await refetch()
         )
     }
 
