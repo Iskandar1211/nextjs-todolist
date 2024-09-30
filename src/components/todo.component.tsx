@@ -18,7 +18,7 @@ const TodoComponent = (
     todo: TodoType,
     isCompleted?: boolean,
     refetch: () => Promise<void>
-    onComplete?: (updateTodo: TodoType) => Promise<void>
+    onComplete?: (updateTodo: TodoType) => Promise<boolean>
   }) => {
   // ---------------------------------------------------------------------------------------
   // Variables
@@ -56,7 +56,7 @@ const TodoComponent = (
 
   // ---------------------------------------------------------------------------------------
   return (
-    <Card className={`w-[350px] ${isCompleted ? "bg-green-400" : ''}`}>
+    <Card className={`w-[350px] ${isCompleted ? "bg-green-400" : ''} shadow-lg`}>
       <CardHeader>
         <h1 className={'text-center text-xl'}>{todo.dateFrom}</h1>
         <CardTitle>{todo.title} </CardTitle>
@@ -83,13 +83,16 @@ const TodoComponent = (
             onDeleteTodo(todo.id)
           }
         }} variant={'destructive'}>Delete</Button>
-        {!todo.completed && <Button onClick={() => {
+        {!todo.completed && <Button onClick={async () => {
           const updatedTodo: TodoType = {
             ...todo,
             completed: true
           }
           if (onComplete) {
-            onComplete(updatedTodo)
+            const res = await onComplete(updatedTodo)
+            if(res){
+              toast.success('Todo is completed successfully.');
+            }
           }
         }}>Complete</Button>}
       </CardFooter>

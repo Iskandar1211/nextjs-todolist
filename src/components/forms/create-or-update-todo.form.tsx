@@ -9,6 +9,8 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Button} from "@/components/ui/button";
 import {DialogClose} from "@/components/ui/dialog";
+import {toast} from "react-toastify";
+import {Textarea} from "@/components/ui/textarea";
 
 const CreateOrUpdateTodoForm = ({todo, refetch}: { todo?: TodoType, refetch: () => Promise<void> }) => {
 
@@ -39,13 +41,23 @@ const CreateOrUpdateTodoForm = ({todo, refetch}: { todo?: TodoType, refetch: () 
     if (todo?.id) {
       const updateTodo: TodoType = {...data, id: todo.id, userId: todo.id};
       axios.put(`${process.env.NEXT_PUBLIC_API_URL}/todos/${todo.id}`, updateTodo)
-        .then(async (data) => data.status === 200 && await refetch()
-        )
+        .then(async (data) => {
+            if (data.status === 200) {
+              await refetch()
+              toast.success('Todo updated successfully.');
+            }
+          }
+        ).catch(e => toast.error(e));
     } else {
       const newTodo: TodoType = {...data, id: crypto.randomUUID(), userId: crypto.randomUUID()};
       axios.post(`${process.env.NEXT_PUBLIC_API_URL}/todos`, newTodo)
-        .then(async (data) => data.status === 201 && await refetch()
-        )
+        .then(async (data) => {
+            if (data.status === 201) {
+              await refetch()
+              toast('Todo created successfully.');
+            }
+          }
+        ).catch(e => toast.error(e));
     }
 
     form.setValue('title', '')
@@ -106,6 +118,18 @@ const CreateOrUpdateTodoForm = ({todo, refetch}: { todo?: TodoType, refetch: () 
               )}
             />
           </div>
+          <FormField
+            control={form.control}
+            name="description"
+            render={({field}) => (
+              <FormItem className={'flex items-center gap-4'}>
+                <FormControl>
+                  <Textarea placeholder="description" {...field} />
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            )}
+          />
           <DialogClose asChild>
             <Button type="submit">Submit</Button>
           </DialogClose>

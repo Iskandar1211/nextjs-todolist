@@ -15,13 +15,13 @@ const TodolistPageComponent = () => {
 
   return (
     <div className={'border flex gap-2 p-4'}>
-      <div>
-        <div className={'flex-1 grid grid-cols-3 gap-2'}>
-          <h1 className={'col-span-3 my-4'}>Tasks</h1>
+      <div className={'flex flex-col gap-5'}>
+        <div className={'flex-1 grid grid-cols-3 gap-2 border rounded-lg'}>
+          <h1 className={'col-span-3 my-4 text-2xl font-bold text-center'}>Actual Tasks</h1>
           {todos.map(todo => <TodoComponent key={todo.id} todo={todo} refetch={getTodos} onComplete={onComplete}/>)}
         </div>
-        <div className={'flex-1 grid grid-cols-3 gap-2'}>
-          <h1 className={'col-span-3 my-4'}>Completed Tasks</h1>
+        <div className={'flex-1 grid grid-cols-3 gap-2 border rounded-lg'}>
+          <h1 className={'col-span-3 my-4 text-2xl font-bold text-center'}>Completed Tasks</h1>
           {completedTodos.map(completedTodo => (
             <TodoComponent key={completedTodo.id} todo={completedTodo} isCompleted={true} refetch={getCompletedTodos}/>
           ))}
